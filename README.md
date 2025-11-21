@@ -1,56 +1,74 @@
-# Hướng dẫn sử dụng Tool Tải & Đóng Dấu Video Facebook
+# FB1K - Facebook Reels Scraper & Downloader
 
-Tool này giúp bạn tự động tải video từ Facebook Reel và gắn logo watermark vào góc dưới bên phải.
+This project provides tools to scrape Facebook Reels links from channels/profiles and download them with optional watermarking.
 
-## Yêu cầu hệ thống
-1.  **Python**: Đã cài đặt Python 3.
-2.  **FFmpeg**: Đã cài đặt FFmpeg và có thể chạy từ dòng lệnh (terminal).
+## Features
 
-## Cài đặt
-Mở terminal tại thư mục dự án và chạy lệnh sau để cài đặt các thư viện cần thiết:
+- **Scrape All Reels**: Extract all video links from a Facebook Reels tab (infinite scrolling supported).
+- **Download & Watermark**: Download individual reels and add a custom logo watermark.
+- **Lightweight**: Uses Python scripts with minimal dependencies.
+
+## Prerequisites
+
+- **Python 3.x**
+- **Google Chrome** (for scraping links)
+- **FFmpeg** (for watermarking)
+    - *Mac*: `brew install ffmpeg`
+    - *Windows*: Download and add to PATH.
+
+## Installation
+
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/nguyencaokyvn/fb1k.git
+    cd fb1k
+    ```
+
+2.  Install Python dependencies:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+## Usage
+
+### 1. Scrape All Reels Links
+
+Use `get_all_fb_reels.py` to get a list of all video URLs from a channel.
 
 ```bash
-pip install -r requirements.txt
+python3 get_all_fb_reels.py "https://www.facebook.com/YOUR_CHANNEL/reels"
 ```
 
-## Cách sử dụng
-Chạy file `main.py` kèm theo đường link video Facebook Reel bạn muốn tải:
+- **How it works**: Opens a Chrome browser, automatically scrolls down to load all content, and saves the links.
+- **Output**: `downloads/reels_links/reels_links_<channel_name>.txt`
+
+### 2. Download & Watermark a Single Reel
+
+Use `main.py` to download a video and add a logo.
 
 ```bash
-python3 main.py <LINK_FACEBOOK_REEL>
+python3 main.py "https://www.facebook.com/reel/123456789" --logo logo.png --position bottom_right
 ```
 
-### Các tùy chọn nâng cao
-Bạn có thể tùy chỉnh logo và thư mục lưu bằng các tham số sau:
+- **Arguments**:
+    - `url`: Facebook Reel URL.
+    - `--logo`: Path to your logo image (default: `logo.png`).
+    - `--position`: `bottom_right`, `bottom_left`, `top_right`, `top_left`, `center` (default: `bottom_right`).
+    - `--padding`: Padding from edge in pixels (default: 20).
+- **Output**: Saved in `downloads/` folder.
 
-- `--logo <đường_dẫn_ảnh>`: Đường dẫn đến file ảnh logo (mặc định là `logo.png`).
-- `--output <tên_thư_mục>`: Thư mục để lưu video tải về (mặc định là `downloads`).
-- `--position <vị_trí>`: Vị trí logo. Các giá trị: `bottom_right` (mặc định), `bottom_left`, `top_right`, `top_left`, `center`.
-- `--padding <số_pixel>`: Khoảng cách từ lề (mặc định là 20).
+## Scripts Overview
 
-### Ví dụ lệnh đầy đủ
-```bash
-python3 main.py "https://www.facebook.com/reel/1396021195866747" --logo my_logo.png --output video_da_tai --position top_right --padding 50
-```
+| Script | Description |
+| :--- | :--- |
+| `get_all_fb_reels.py` | **Recommended**. Uses Selenium to scrape *all* links from a channel. |
+| `main.py` | Main entry point for downloading and watermarking a single video. |
+| `downloader.py` | Helper module to download videos using `yt-dlp`. |
+| `watermarker.py` | Helper module to add watermarks using `ffmpeg`. |
+| `get_fb_reels.py` | Legacy script using `yt-dlp` for scraping (less reliable for full channels). |
 
-### Chạy riêng chức năng đóng dấu (Watermark)
-Nếu bạn đã có sẵn video và chỉ muốn đóng dấu logo, hãy chạy lệnh sau:
+## Troubleshooting
 
-```bash
-python3 watermarker.py <đường_dẫn_video> <đường_dẫn_logo>
-```
-
-Ví dụ:
-```bash
-python3 watermarker.py video.mp4 logo.png
-```
-Bạn cũng có thể chỉ định tên file đầu ra bằng tùy chọn `--output`:
-```bash
-python3 watermarker.py downloads/123.mp4 logo.png --output downloads/123_logo.mp4
-```
-
-## Giải thích các file
-- **main.py**: File chính để chạy chương trình. Nó kết hợp việc tải và đóng dấu.
-- **downloader.py**: Chứa code dùng `yt-dlp` để tải video từ Facebook.
-- **watermarker.py**: Chứa code dùng `ffmpeg` để gắn logo vào video.
-- **requirements.txt**: Danh sách các thư viện Python cần cài đặt.
+- **Scraping stops early**: Check your internet connection. The script stops if no new content loads after 5 scroll attempts.
+- **Browser closes immediately**: Ensure Chrome is installed. The script manages the driver automatically.
+- **Watermark fails**: Ensure `ffmpeg` is installed and accessible in your terminal.
